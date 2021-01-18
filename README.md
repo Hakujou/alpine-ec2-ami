@@ -1,35 +1,11 @@
-# Alpine Linux EC2 AMI Builder
+# Alpine Linux OMI Builder
 
-These are the official Alpine AWS AMIs. For an index of images see the
-[Alpine Website](https://alpinelinux.org/cloud/).
+This is an unofficial builder for Outscale Alpine Linux Images.
 
-## Pre-Built AMIs
-
-***To get started with a pre-built minimalist AMIs, visit
-https://alpinelinux.org/cloud, or the [README](releases/README.md) in the
-[releases](releases) subdirectory of this repo.***
-
-Alternately, with the right filters, you can query the EC2 API to programmatically
-find our most recent AMIs.  For example, using the `aws` command line tool...
-```
-aws ec2 describe-images \
-  --output text \
-  --filters \
-    Name=owner-id,Values=538276064493 \
-    Name=name,Values='alpine-ami-*' \
-    Name=state,Values=available \
-    Name=tag:profile_build,Values=v3_10-x86_64 \
-  --query 'max_by(Images[], &CreationDate).ImageId'
-```
-...will list the latest AMI id from our collection of 'v3_10-x86_64' builds.
-Refer to the AWS CLI Command Reference for
-[describe-images](https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html)
-for more details.
-
-## Custom AMIs
+## Custom OMIs
 
 Using the scripts and configuration in this project, you can build your own
-custom Alpine Linux AMIs.  If you experience any problems building custom AMIs,
+custom Alpine Linux OMIs.  If you experience any problems building custom OMIs,
 please open an [issue](https://github.com/mcrute/alpine-ec2-ami/issues) and
 include as much detailed information as possible.
 
@@ -37,16 +13,16 @@ include as much detailed information as possible.
 
 * [Packer](https://packer.io) >= 1.4.1
 * [Python 3.x](https://python.org) (3.7 is known to work)
-* an AWS account with an existing subnet in an AWS Virtual Private Cloud
+* an Outscale account
 
 ### Profile Configuration
 
 Target profile config files reside in the [profiles](profiles) subdirectory,
 where you will also find the [config](profiles/alpine.conf) we use for our
 pre-built AMIs.  Refer to the [README](profiles/README.md) in that subdirectory
-for more details and information about how AMI profile configs work.
+for more details and information about how OMI profile configs work.
 
-### AWS Credentials
+### Outscale Credentials
 
 These scripts use the `boto3` library to interact with AWS, enabling you to
 provide your AWS account credentials in a number of different ways.  see the
@@ -55,22 +31,22 @@ offical `boto3` documentation's section on
 for more details.  *Please note that these scripts do not implement the first
 two methods on the list.*
 
-### Building AMIs
+### Building OMIs
 
 To build all build targets in a target profile, simply...
 ```
-./scripts/builder.py amis <profile>
+./scripts/builder.py omis <profile>
 ```
 
 You can also build specfic build targets within a profile:
 ```
-./scripts/builder.py amis <profile> <build1> <build2> ...
+./scripts/builder.py omis <profile> <build1> <build2> ...
 ```
 
 Before each build, new Alpine Linux *releases* are detected and the version's
 core profile is updated.
 
-If there's already an AMI with the same name as the profile build's, that build
+If there's already an OMI with the same name as the profile build's, that build
 will be skipped and the process moves on to build the other profile's build
 targets (if any).
 

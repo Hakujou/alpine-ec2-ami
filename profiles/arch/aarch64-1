@@ -1,7 +1,0 @@
-### aarch64 vars, revision 1
-# vim: ts=2 et:
-
-arch                = "aarch64"
-bootloader          = "grub-efi"
-build_arch          = "arm64"
-build_instance_type = "t4g.nano"

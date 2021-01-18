@@ -39,6 +39,10 @@ validate_block_device() {
     fi
 }
 
+install_dependencies() {
+    dnf install -y wget
+}
+
 main_repo_pkgs() {
     wget -T 10 -q -O - "$MAIN_REPO/" | grep '^<a href=' | cut -d\" -f2
 }
@@ -158,18 +162,6 @@ install_core_packages() {
 
 }
 
-setup_mdev() {
-    install -o root -g root -Dm755 -t "$TARGET/lib/mdev" \
-        "$SETUP/nvme-ebs-links" \
-        "$SETUP/eth-eni-hotplug"
-
-    # insert nvme ebs mdev configs just above "# fallback" comment
-    sed -n -i \
-        -e "/# fallback/r $SETUP/etc/mdev-ec2.conf" \
-        -e 1x -e '2,${x;p}' -e '${x;p}' \
-        "$TARGET/etc/mdev.conf"
-}
-
 create_initfs() {
     sed -Ei "s/^features=\"([^\"]+)\"/features=\"\1 $INITFS_FEATURES\"/" \
         "$TARGET/etc/mkinitfs/mkinitfs.conf"
@@ -275,19 +267,6 @@ setup_networking() {
 
     install -o root -g root -Dm755 -t "$TARGET/etc/network" \
         "$SETUP/assemble-interfaces"
-
-    # install ucdhcp hooks for EC2 ENI IPv6 and secondary IPv4
-    install -o root -g root -Dm755 -t "$TARGET/usr/share/udhcpc" \
-        "$SETUP/eth-eni-hook"
-    for i in post-bound post-renew; do
-        mkdir -p "$TARGET/etc/udhcpc/$i"
-        ln -sf /usr/share/udhcpc/eth-eni-hook \
-            "$TARGET/etc/udhcpc/$i"
-    done
-
-    # install ENI interface setup init script
-    install -o root -g root -Dm755 -t "$TARGET/etc/init.d" \
-        "$SETUP/eth-eni-setup"
 }
 
 enable_services() {
@@ -319,17 +298,6 @@ create_alpine_user() {
 
     # Let tiny-ec2-bootstrap know what the EC2 user of the AMI is
     echo "EC2_USER=$user" > "$TARGET/etc/conf.d/tiny-ec2-bootstrap"
-}
-
-configure_ntp() {
-    # EC2 provides an instance-local NTP service syncronized with GPS and
-    # atomic clocks in-region. Prefer this over external NTP hosts when running
-    # in EC2.
-    #
-    # See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
-    sed -e 's/^pool /server /' \
-        -e 's/pool.ntp.org/169.254.169.123/g' \
-        -i "$TARGET/etc/chrony/chrony.conf"
 }
 
 setup_script() {
@@ -372,6 +340,9 @@ main() {
 
     [ -d "$TARGET" ] || mkdir "$TARGET"
 
+    einfo "Install dependencies"
+    install_dependencies
+
     einfo "Fetching static APK tools"
     apk="$(fetch_apk_tools)"
 
@@ -397,12 +368,10 @@ main() {
     install_bootloader
 
     einfo "Configuring system"
-    setup_mdev
     setup_fstab
     setup_networking
     enable_services
     create_alpine_user
-    configure_ntp
 
     setup_script
 

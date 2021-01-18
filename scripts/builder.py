@@ -521,13 +521,10 @@ class ConfigBuilder:
 class BuildAMIs:
     """Build all AMIs for profile, or specific builds within a profile
     """
-    command_name = "amis"
+    command_name = "omis"
 
     @staticmethod
     def add_args(parser):
-        # NOTE: --use-broker and --region are not mutually exclusive here!
-        parser.add_argument("--use-broker", action="store_true",
-            help="use identity broker to obtain region credentials")
         parser.add_argument("--region", "-r", default="us-west-2",
             help="region to use for build")
         parser.add_argument("profile", metavar="PROFILE",
@@ -561,15 +558,6 @@ class BuildAMIs:
                 break
 
             env = None
-            if args.use_broker:
-                creds = IdentityBrokerClient().get_credentials(args.region)
-                env = {
-                    "PATH": os.environ.get("PATH"),
-                    "AWS_ACCESS_KEY_ID": creds["access_key"],
-                    "AWS_SECRET_ACCESS_KEY": creds["secret_key"],
-                    "AWS_SESSION_TOKEN": creds["session_token"],
-                    "AWS_DEFAULT_REGION": args.region,
-                }
 
             out = io.StringIO()
 

@@ -17,28 +17,25 @@ build_arch          = null
 build_instance_type = null
 
 # Builder-instance
-build_region          = "us-west-2"
+build_region          = "eu-west-2"
 build_subnet          = null
 build_public_ip       = null
-build_user            = "ec2-user"
-build_ami_name        = "amzn2-ami-hvm-2.0.*-gp2"
-build_ami_owner       = "137112412989"
-build_ami_latest      = "true"
+build_user            = "outscale"
+build_omi_name        = "ami-a2d3b6a6"
 
 # AMI build/deploy
 aws_profile     = null  # AWS profile to build AMI
 aws_accounts    = null  # comma-separated AWS accounts allowed to launch AMI
-ami_name_prefix = "alpine-ami-"
-ami_name_suffix = ""
-ami_desc_prefix = "Alpine Linux "
-ami_desc_suffix = ""
-ami_volume_size = "1"
-ami_encrypt     = "false"
-ami_user        = "alpine"
+omi_name_prefix = "alpine-omi-"
+omi_name_suffix = ""
+omi_desc_prefix = "Alpine Linux "
+omi_desc_suffix = ""
+omi_volume_size = "4"
+omi_user        = "alpine"
 
 # NOTE: the following are python format strings, resolved in builder.py
-ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
-ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
+omi_name        = "{var.omi_name_prefix}{var.release}-{var.arch}-{var.revision}{var.omi_name_suffix}"
+omi_desc        = "{var.omi_desc_prefix}{var.release} {var.arch} {var.revision}{var.omi_desc_suffix}"
 
 # AMI configuration
 bootloader          = null

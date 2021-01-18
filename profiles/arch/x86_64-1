@@ -4,4 +4,4 @@
 arch                = "x86_64"
 bootloader          = "syslinux"
 build_arch          = "x86_64"
-build_instance_type = "t3a.nano"
+build_instance_type = "tinav4.c2r4p1"
